@@ -20,6 +20,7 @@ export default function JokesRoute(){
                 </li>
               ))}
             </ul>
+            <Link to="new">Add your own</Link>
             <main>
                 <Outlet/>
             </main>
