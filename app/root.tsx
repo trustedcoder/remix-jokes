@@ -1,6 +1,9 @@
 import { Links } from "@remix-run/react";
-import { LiveReload, Outlet, useCatch } from "@remix-run/react";
+import { LiveReload, Outlet, useCatch, Meta } from "@remix-run/react";
 import styles from "./styles/app.css"
+import type {
+  MetaFunction,
+} from "@remix-run/node";
 
 
 export function links() {
@@ -17,7 +20,7 @@ function Document({
   return (
     <html lang="en">
       <head>
-        <meta charSet="utf-8" />
+        <Meta />
         <title>{title}</title>
         <Links />
       </head>
@@ -36,6 +39,21 @@ export default function App() {
     </Document>
   );
 }
+
+export const meta: MetaFunction = () => {
+  const description = `Learn Remix and laugh at the same time!`;
+  return {
+    charset: "utf-8",
+    description,
+    keywords: "Remix,jokes",
+    "twitter:image": "https://remix-jokes.lol/social.png",
+    "twitter:card": "summary_large_image",
+    "twitter:creator": "@remix_run",
+    "twitter:site": "@remix_run",
+    "twitter:title": "Remix Jokes",
+    "twitter:description": description,
+  };
+};
 
 export function CatchBoundary() {
   const caught = useCatch();

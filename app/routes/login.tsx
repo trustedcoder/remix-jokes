@@ -2,7 +2,7 @@ import { Link, useActionData, useSearchParams } from "@remix-run/react";
 import { db } from "~/utils/db.server";
 import { badRequest } from "~/utils/request.server";
 import { json } from "@remix-run/node";
-import type {ActionArgs, LinksFunction} from "@remix-run/node";
+import type {ActionArgs, MetaFunction} from "@remix-run/node";
 import { createUserSession, login, register } from "~/utils/session.server";
 
 
@@ -108,6 +108,12 @@ export const action = async ({ request }: ActionArgs) => {
       }
     }
   };
+
+  export const meta: MetaFunction = () => ({
+    description:
+      "Login to submit your own jokes to Remix Jokes!",
+    title: "Remix Jokes | Login",
+  });
 
 
 export default function Login() {
