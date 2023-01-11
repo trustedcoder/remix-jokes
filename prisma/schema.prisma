@@ -17,6 +17,8 @@ model User {
   username     String @unique
   passwordHash String
   jokes        Joke[]
+  jokelike   Jokelikes[]
+  favorites   Favorites[]
 }
 
 model Joke {
@@ -27,4 +29,23 @@ model Joke {
   updatedAt  DateTime @updatedAt
   name       String
   content    String
+  jokelike   Jokelikes[]
+  favorites   Favorites[]
+}
+
+model Jokelikes {
+  id         Int @id @default(autoincrement())
+  jokeId Int
+  joke   Joke @relation(fields: [jokeId], references: [id], onDelete: Cascade)
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  is_like  Boolean
+}
+
+model Favorites {
+  id     Int @id @default(autoincrement())
+  jokeId Int
+  joke   Joke @relation(fields: [jokeId], references: [id], onDelete: Cascade)
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

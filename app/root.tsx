@@ -1,5 +1,5 @@
 import { Links } from "@remix-run/react";
-import { LiveReload, Outlet, useCatch, Meta } from "@remix-run/react";
+import { LiveReload, Outlet, useCatch, Meta, Scripts } from "@remix-run/react";
 import styles from "./styles/app.css"
 import type {
   MetaFunction,
@@ -24,8 +24,9 @@ function Document({
         <title>{title}</title>
         <Links />
       </head>
-      <body>
+      <body className="bg-gray-600 font-sans leading-normal tracking-normal">
         {children}
+        <Scripts />
         <LiveReload />
       </body>
     </html>

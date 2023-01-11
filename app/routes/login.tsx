@@ -120,123 +120,126 @@ export default function Login() {
     const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   return (
-    <div className="container">
-      <div className="content" data-light="">
-        <h1>Login</h1>
-        <form method="post">
-          <input
-            type="hidden"
-            name="redirectTo"
-            value={
-              searchParams.get("redirectTo") ?? undefined
-            }
-          />
-          <fieldset>
-            <legend className="sr-only">
-              Login or Register?
-            </legend>
-            <label>
-              <input
-                type="radio"
-                name="loginType"
-                value="login"
-                defaultChecked={
-                    !actionData?.fields?.loginType ||
-                    actionData?.fields?.loginType === "login"
-                  }
-              />{" "}
-              Login
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="loginType"
-                value="register"
-                defaultChecked={
-                    actionData?.fields?.loginType ===
-                    "register"
-                  }
-              />{" "}
-              Register
-            </label>
-          </fieldset>
-          <div>
-            <label htmlFor="username-input">Username</label>
+    <div className="grid place-items-center h-screen">
+      <div className="content-center">
+        <div className="bg-white py-8 px-24 content-center rounded">
+          <h1 className="text-center text-4xl">Login</h1>
+          <form method="post">
             <input
-              type="text"
-              id="username-input"
-              name="username"
-              defaultValue={actionData?.fields?.username}
-              aria-invalid={Boolean(
-                actionData?.fieldErrors?.username
-              )}
-              aria-errormessage={
-                actionData?.fieldErrors?.username
-                  ? "username-error"
-                  : undefined
+              type="hidden"
+              name="redirectTo"
+              value={
+                searchParams.get("redirectTo") ?? undefined
               }
             />
-            {actionData?.fieldErrors?.username ? (
-              <p
-                className="form-validation-error"
-                role="alert"
-                id="username-error"
-              >
-                {actionData.fieldErrors.username}
-              </p>
-            ) : null}
-          </div>
-          <div>
-            <label htmlFor="password-input">Password</label>
-            <input
-              id="password-input"
-              name="password"
-              type="password"
-              defaultValue={actionData?.fields?.password}
-              aria-invalid={Boolean(
-                actionData?.fieldErrors?.password
-              )}
-              aria-errormessage={
-                actionData?.fieldErrors?.password
-                  ? "password-error"
-                  : undefined
-              }
-            />
-            {actionData?.fieldErrors?.password ? (
-              <p
-                className="form-validation-error"
-                role="alert"
-                id="password-error"
-              >
-                {actionData.fieldErrors.password}
-              </p>
-            ) : null}
-          </div>
+            <fieldset className="py-3 grid place-items-center">
+              <div className="flex flex-row mb-3">
+              <label className="mr-4">
+                <input
+                  type="radio"
+                  name="loginType"
+                  value="login"
+                  defaultChecked={
+                      !actionData?.fields?.loginType ||
+                      actionData?.fields?.loginType === "login"
+                    }
+                />{" "}
+                Login
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="loginType"
+                  value="register"
+                  defaultChecked={
+                      actionData?.fields?.loginType ===
+                      "register"
+                    }
+                />{" "}
+                Register
+              </label>
+              </div>
+            </fieldset>
+            <div className="my-3">
+              <label htmlFor="username-input">Username</label>
+              <br></br>
+              <input
+                type="text"
+                id="username-input"
+                name="username"
+                className="form-input px-4 py-3 rounded"
+                defaultValue={actionData?.fields?.username}
+                aria-invalid={Boolean(
+                  actionData?.fieldErrors?.username
+                )}
+                aria-errormessage={
+                  actionData?.fieldErrors?.username
+                    ? "username-error"
+                    : undefined
+                }
+              />
+              {actionData?.fieldErrors?.username ? (
+                <p
+                  className="form-validation-error"
+                  role="alert"
+                  id="username-error"
+                >
+                  {actionData.fieldErrors.username}
+                </p>
+              ) : null}
+            </div>
+            <div>
+              <label htmlFor="password-input">Password</label>
+              <br></br>
+              <input
+                id="password-input"
+                name="password"
+                type="password"
+                className="form-input px-4 py-3 rounded"
+                defaultValue={actionData?.fields?.password}
+                aria-invalid={Boolean(
+                  actionData?.fieldErrors?.password
+                )}
+                aria-errormessage={
+                  actionData?.fieldErrors?.password
+                    ? "password-error"
+                    : undefined
+                }
+              />
+              {actionData?.fieldErrors?.password ? (
+                <p
+                  className="form-validation-error"
+                  role="alert"
+                  id="password-error"
+                >
+                  {actionData.fieldErrors.password}
+                </p>
+              ) : null}
+            </div>
 
-          <div id="form-error-message">
-            {actionData?.formError ? (
-              <p
-                className="form-validation-error"
-                role="alert"
-              >
-                {actionData.formError}
-              </p>
-            ) : null}
+            <div id="form-error-message">
+              {actionData?.formError ? (
+                <p
+                  className="form-validation-error"
+                  role="alert"
+                >
+                  {actionData.formError}
+                </p>
+              ) : null}
+            </div>
+            <div className="grid place-items-center">
+              <button type="submit" className="bg-green-500 text-white px-3 py-2 rounded-md text-sm font-medium mt-3">
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+        <div className="grid place-items-center">
+          <div className="flex flex-row mb-3 mt-5">
+            <Link to="/" className="text-green-500">Home</Link>
+            <Link to="/jokes" className="ml-5 text-green-500">Jokes</Link>
           </div>
-          <button type="submit" className="button">
-            Submit
-          </button>
-        </form>
-      </div>
-      <div className="links">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/jokes">Jokes</Link>
-          </li>
-        </ul>
+        </div>
       </div>
     </div>
   );

@@ -68,14 +68,19 @@ export const action = async ({ request }: ActionArgs) => {
 export default function NewJokesRoute(){
     const actionData = useActionData<typeof action>();
     return (
-        <div>
-            <p>Add your own hilarious joke</p>
-            <form method="post">
-                <div>
+        <div className="grid place-items-center mt-4">
+          <div className="w-full p-28">
+
+          
+            <p className="text-lg font-bold text-gray-700 text-center">Add your own hilarious joke</p>
+            <form method="post" className="mt-4">
+                <div >
                 <label>
-                    Name: <input type="text" 
+                    Name: 
+                    <br></br><input type="text" 
                     defaultValue={actionData?.fields?.name}
                     name="name"
+                    className="form-input px-4 py-3 w-full rounded"
                     aria-invalid={
                         Boolean(actionData?.fieldErrors?.name) ||
                         undefined
@@ -96,11 +101,13 @@ export default function NewJokesRoute(){
                     </p>
                 ) : null}
                 </div>
-                <div>
+                <div className="mt-4">
                 <label>
-                    Content: <textarea 
+                    Content: <br></br><textarea 
                     defaultValue={actionData?.fields?.content}
                     name="content"
+                    rows={5}
+                    className="form-textarea px-4 py-3 w-full rounded"
                     aria-invalid={
                         Boolean(actionData?.fieldErrors?.content) ||
                         undefined
@@ -131,11 +138,14 @@ export default function NewJokesRoute(){
                 {actionData.formError}
                 </p>
             ) : null}
-                <button type="submit" className="button">
+            <div className="grid place-items-center">
+                <button type="submit" className="bg-green-500 text-white px-3 py-2 rounded-md text-sm font-medium mt-3 w-full">
                     Add
                 </button>
+              </div>
                 </div>
             </form>
+            </div>
         </div>
     )
 }
