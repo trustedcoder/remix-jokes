@@ -1,9 +1,11 @@
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { db } from "~/utils/db.server";
 import { getUser } from "~/utils/session.server";
+import { getUserId, likeJoke, unlikeJoke, favorite, deleteJoke } from "~/utils/session.server";
+
 import type {
-    LinksFunction,
+  ActionArgs,
     LoaderArgs,
   } from "@remix-run/node";
 
@@ -20,6 +22,37 @@ export const loader = async ({ request }: LoaderArgs) => {
         jokeListItems,
         user,
     });
+    };
+
+    export const action = async ({ params, request }: ActionArgs) => {
+      const form = await request.formData();
+      const intent = form.get("intent");
+      const jokeId = form.get("jokeId");
+      const userId = await getUserId(request);
+      console.log(userId)
+      if(userId){
+        if(intent === "delete"){
+          await deleteJoke( Number(jokeId), request );
+          return redirect("/jokes");
+        }
+        else if(intent === "like"){
+          await likeJoke( Number(jokeId), request );
+          return redirect("/jokes/"+jokeId);
+        }
+        else if(intent === "unlike"){
+          await unlikeJoke( Number(jokeId), request );
+          return redirect("/jokes/"+jokeId);
+        }
+        else if(intent === "favorite"){
+          await favorite( Number(jokeId), request );
+          return redirect("/jokes/"+jokeId);
+        }
+      }
+      else{
+        return redirect("/login");
+      }
+    
+    
     };
 
     export default function JokesRoute() {

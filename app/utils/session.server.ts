@@ -4,6 +4,7 @@ import {
     redirect,
   } from "@remix-run/node";
 import { db } from "./db.server";
+import { Params } from "@remix-run/react";
 
 type LoginForm = {
   username: string;
@@ -123,4 +124,128 @@ const storage = createCookieSessionStorage({
         "Set-Cookie": await storage.commitSession(session),
       },
     });
+  }
+
+
+  export async function likeJoke (jokeId: Number, request: Request){
+    const userId = await requireUserId(request);
+    const joke = await db.joke.findUnique({
+      where: { id : Number(jokeId)},
+    });
+    
+    if(!joke){
+      throw new Response(`Can't like what does not exist`, {status: 404})
+    }
+  
+    const jokelikess = await db.jokelikes.findFirst({
+      where: { jokeId : Number(jokeId), userId:  Number(userId)},
+    });
+    console.log("EDDDDD");
+    if(!jokelikess){
+      console.log("OOOOOOOEDDDDD");
+      try{
+        await db.jokelikes.create({
+          data: { jokeId: Number(joke.id), userId: Number(userId), is_like: true, is_un_like: false },
+        });
+      }
+      catch(e){
+        console.log(e);
+      }
+    }
+    else{
+      await db.jokelikes.updateMany({
+        where: {
+          jokeId: joke.id, userId:  Number(userId)
+        },
+        data: {
+          is_like: !(jokelikess.is_like),
+          is_un_like: jokelikess.is_like !== true ? false : jokelikess.is_un_like,
+        },
+      })
+    }
+  }
+  
+  export async function unlikeJoke (jokeId: Number, request: Request){
+    const userId = await requireUserId(request);
+    const joke = await db.joke.findUnique({
+      where: { id : Number(jokeId)},
+    });
+    
+    if(!joke){
+      throw new Response(`Can't like what does not exist`, {status: 404})
+    }
+  
+    const jokelikess = await db.jokelikes.findFirst({
+      where: { jokeId : Number(jokeId), userId:  Number(userId)},
+    });
+    if(!jokelikess){
+      await db.jokelikes.create({
+        data: { jokeId: Number(joke.id), userId: Number(userId), is_like: false, is_un_like: true },
+      });
+    }
+    else{
+      await db.jokelikes.updateMany({
+        where: {
+          jokeId: joke.id, userId:  Number(userId)
+        },
+        data: {
+          is_like: jokelikess.is_un_like !== true ? false : jokelikess.is_like,
+          is_un_like: !(jokelikess.is_un_like),
+        },
+      })
+    }
+  }
+  
+  export async function favorite (jokeId: Number, request: Request){
+    const userId = await requireUserId(request);
+    const joke = await db.joke.findUnique({
+      where: { id : Number(jokeId)},
+    });
+    
+    if(!joke){
+      throw new Response(`Can't like what does not exist`, {status: 404})
+    }
+  
+    const favorite = await db.favorites.findFirst({
+      where: { jokeId : Number(jokeId), userId:  Number(userId)},
+    });
+    if(!favorite){
+      await db.favorites.create({
+        data: { jokeId: Number(joke.id), userId: Number(userId) },
+      });
+    }
+    else{
+      await db.favorites.deleteMany({
+        where: { jokeId : Number(jokeId), userId:  Number(userId)},
+      });
+    }
+  }
+
+  export async function deleteJoke(jokeId: Number, request: Request){
+    const userId = await requireUserId(request);
+    const joke = await db.joke.findUnique({
+      where: { id : Number(jokeId)},
+    });
+  
+    if(!joke){
+      throw new Response(`Can't delete what does not exist`, {status: 404})
+    }
+  
+    if(joke.jokesterId !== userId){
+      throw new Response(
+        "Pssh, nice try. That's not your joke",
+        { status: 403 }
+      );
+    }
+  
+    await db.joke.delete({
+      where: {id: Number(jokeId)}
+    });
+  }
+
+  export async function getUserName(userId: Number){
+    const user = await db.user.findUnique({
+      where: { id: Number(userId) }
+    });
+    return user?.username;
   }
