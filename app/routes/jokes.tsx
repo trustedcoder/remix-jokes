@@ -130,7 +130,8 @@ export const loader = async ({request }: LoaderArgs) => {
               
                 <div className="grid grid-cols-4 gap-4">
                   <div className="">
-                  <h5 className="text-lg text-violet-100 font-bold mb-5">New jokes</h5>
+                  {data.favorite_num === 1 ? (<h5 className="text-lg text-violet-100 font-bold mb-5">My favorite jokes</h5>) : (<h5 className="text-lg text-violet-100 font-bold mb-5">New jokes</h5>)}
+                  
                   {data.jokeList.list_jokes.map((joke) => (
                     <div className="border-x border-y mb-2 px-2 rounded bg-black">
                       <p className="text-lg text-green-500"><Link to={joke.id!.toString()}>{joke.name}</Link></p>
