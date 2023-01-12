@@ -335,6 +335,7 @@ const storage = createCookieSessionStorage({
       'id': joke?.id,
       'name': joke?.name,
       'author': await getUserName(Number(joke?.jokesterId)),
+      'date_time': convertDate(joke?.createdAt.toDateString()!),
       "likes": count_likes,
       "un_likes": count_unlikes,
     })
@@ -345,5 +346,60 @@ const storage = createCookieSessionStorage({
     return {
       list_top_jokes,
         user,
+    };
+  }
+
+  export async function get_favorite_jokes(start: Number, request: Request, userId: Number){
+    const jokeFavListItems = await db.favorites.findMany({
+      skip: Number(start),
+      take: 5,
+      where: { userId: Number(userId) }
+    });
+
+  const user = await getUser(request);
+  
+  var list_jokes = []
+
+  for (let i = 0; i < jokeFavListItems.length; i++) {
+    const count_likes = await db.jokelikes.count({
+      where: { jokeId : Number(jokeFavListItems[i].jokeId), is_like:  true},
+    });
+  
+    const count_unlikes = await db.jokelikes.count({
+      where: { jokeId : Number(jokeFavListItems[i].jokeId), is_un_like:  true},
+    });
+
+    const joke = await db.joke.findUnique({
+      where: { id: Number(jokeFavListItems[i].jokeId) },
+    });
+
+   list_jokes.push({
+      'id': joke?.id,
+      'name': joke?.name,
+      'author': await getUserName(Number(joke?.jokesterId)),
+      'date_time': convertDate(joke?.createdAt.toDateString()!),
+      "likes": count_likes,
+      "un_likes": count_unlikes,
+    })
+  }
+
+    const jokes_count = await db.favorites.count({
+      where: { userId: Number(userId) }
+    });
+
+    var is_next = jokes_count <= (Number(start)+5);
+    var is_prev = Number(start) > 0;
+
+
+    return {
+      list_jokes,
+        user,
+        "total_joke": jokes_count,
+        "start": Number(start)+1,
+        "current": jokes_count > Number(start)+5 ? Number(start)+5 :  Number(start)+(Number(start)+5)-jokes_count,
+        "is_next": is_next,
+        "is_previous": is_prev,
+        "next": "/jokes?favorite=1&start="+(Number(start)+5).toString(),
+        "prev": "/jokes?favorite=1&start="+(Number(start)-5).toString(),
     };
   }

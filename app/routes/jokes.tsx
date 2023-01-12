@@ -1,7 +1,7 @@
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import { db } from "~/utils/db.server";
-import { getUser } from "~/utils/session.server";
+import { getUser, get_favorite_jokes } from "~/utils/session.server";
 import { getUserId, likeJoke, unlikeJoke, favorite, deleteJoke, get_jokes,get_top_jokes } from "~/utils/session.server";
 import { convertDate } from "~/utils/helpers";
 
@@ -13,6 +13,7 @@ import type {
 export const loader = async ({request }: LoaderArgs) => {
   const url = new URL(request.url);
   var start = url.searchParams.get("start");
+  var favorite = url.searchParams.get("favorite");
   try{
     var start_num = Number(start);
     console.log(start_num);
@@ -23,9 +24,21 @@ export const loader = async ({request }: LoaderArgs) => {
   if(isNaN(start_num)){
     var start_num = 0;
   }
+
+  try{
+    var favorite_num = Number(favorite);
+  }
+  catch(e){
+    var favorite_num = 0;
+  }
+  if(isNaN(favorite_num)){
+    var favorite_num = 0;
+  }
+  const userId = await getUserId(request);
   var dta = {
     topJokeList: await get_top_jokes(request),
-    jokeList: await get_jokes(start_num, request),
+    jokeList: favorite_num === 1 ? await get_favorite_jokes(start_num,request, Number(userId)) : await get_jokes(start_num, request),
+    favorite_num: favorite_num
   }
   return await json(dta);
 };
@@ -84,7 +97,7 @@ export const loader = async ({request }: LoaderArgs) => {
                         <span className="place-items-center px-4 py-2 font-semibold text-gray-300 rounded">{`Hi ${data.jokeList.user.username}`}</span>
                       </li>
                       <li className="self-center">
-                        <span className="place-items-center px-4 py-2 font-semibold text-gray-300 rounded">Favorites</span>
+                      <Link to="/jokes?favorite=1" className="place-items-center px-4 py-2 font-semibold text-gray-300 rounded">Favorites</Link>
                       </li>
                       <li>
                           <form action="/logout" method="post"><button type="submit" className="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Logout</button></form>
@@ -120,7 +133,7 @@ export const loader = async ({request }: LoaderArgs) => {
                   <h5 className="text-lg text-violet-100 font-bold mb-5">New jokes</h5>
                   {data.jokeList.list_jokes.map((joke) => (
                     <div className="border-x border-y mb-2 px-2 rounded bg-black">
-                      <p className="text-lg text-green-500"><Link to={joke.id.toString()}>{joke.name}</Link></p>
+                      <p className="text-lg text-green-500"><Link to={joke.id!.toString()}>{joke.name}</Link></p>
                       <p className="text-sm text-white">By {joke.author} on {joke.date_time}</p>
                       <div className="flex flex-row mt-4 mb-2">
                         <div className="mr-1 text-white"><span>{joke.likes}</span></div>
@@ -160,7 +173,7 @@ export const loader = async ({request }: LoaderArgs) => {
                   {data.topJokeList.list_top_jokes.map((joke) => (
                     <div className="border-x border-y mb-2 px-2 rounded bg-black">
                       <p className="text-lg text-green-500"><Link to={joke.id!.toString()}>{joke.name}</Link></p>
-                      <p className="text-sm text-white">By {joke.author}</p>
+                      <p className="text-sm text-white">By {joke.author} on {joke.date_time}</p>
                       <div className="flex flex-row mt-4 mb-2">
                         <div className="mr-1 text-white"><span>{joke.likes}</span></div>
                         <div className="mr-4">
