@@ -1,5 +1,5 @@
-# Welcome to Remix!
-
+# Welcome to Remix Jokes!
+![alt text](https://github.com/trustedcoder/remix-jokes/blob/master/public/remixJoke.png?raw=true)
 - [Remix Docs](https://remix.run/docs)
 
 ## Development
