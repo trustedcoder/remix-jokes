@@ -1,10 +1,11 @@
 import bcrypt from "bcryptjs";
 import {
     createCookieSessionStorage,
-    redirect,
+    redirect,json
   } from "@remix-run/node";
 import { db } from "./db.server";
 import { Params } from "@remix-run/react";
+import { convertDate } from "~/utils/helpers";
 
 type LoginForm = {
   username: string;
@@ -248,4 +249,53 @@ const storage = createCookieSessionStorage({
       where: { id: Number(userId) }
     });
     return user?.username;
+  }
+
+  export async function get_jokes(start: Number, request: Request){
+    const jokeListItems = await db.joke.findMany({
+      skip: Number(start),
+      take: 5,
+      orderBy: { createdAt: "desc" }
+    });
+
+  const user = await getUser(request);
+  
+  var list_jokes = []
+
+  for (let i = 0; i < jokeListItems.length; i++) {
+    const count_likes = await db.jokelikes.count({
+      where: { jokeId : Number(jokeListItems[i].id), is_like:  true},
+    });
+  
+    const count_unlikes = await db.jokelikes.count({
+      where: { jokeId : Number(jokeListItems[i].id), is_un_like:  true},
+    });
+
+    list_jokes.push({
+      'id': jokeListItems[i].id,
+      'name': jokeListItems[i].name,
+      'author': await getUserName(Number(jokeListItems[i].jokesterId)),
+      'date_time': convertDate(jokeListItems[i].createdAt),
+      "likes": count_likes,
+      "un_likes": count_unlikes,
+    })
+  }
+
+    const jokes_count = await db.joke.count();
+
+    var is_next = jokes_count <= (Number(start)+5);
+    var is_prev = Number(start) > 0;
+
+
+    return json({
+      list_jokes,
+        user,
+        "total_joke": jokes_count,
+        "start": Number(start)+1,
+        "current": jokes_count > Number(start)+5 ? Number(start)+5 :  Number(start)+(Number(start)+5)-jokes_count,
+        "is_next": is_next,
+        "is_previous": is_prev,
+        "next": "/jokes?start="+(Number(start)+5).toString(),
+        "prev": "/jokes?start="+(Number(start)-5).toString(),
+    });
   }

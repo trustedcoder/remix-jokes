@@ -3,6 +3,7 @@ import { json , redirect, MetaFunction} from "@remix-run/node";
 import { Link, useLoaderData, useCatch, useParams, Params } from "@remix-run/react";
 import { db } from "~/utils/db.server";
 import { getUserName, getUserId, likeJoke, unlikeJoke, favorite, deleteJoke } from "~/utils/session.server";
+import { convertDate } from "~/utils/helpers";
 
 
 export const loader = async ({ params, request }: LoaderArgs) => {
@@ -46,15 +47,6 @@ export const loader = async ({ params, request }: LoaderArgs) => {
     where: { jokeId : Number(joke.id), is_un_like:  true},
   });
 
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-];
-
-const d = new Date(joke.createdAt);
-var month = d.getMonth() + 1;
-var day = d.getDate();
-var year = d.getFullYear();
-
   return json({ 
     joke, 
     isOwner: Number(joke.jokesterId) === Number(userId), 
@@ -63,7 +55,7 @@ var year = d.getFullYear();
     is_favorite:  is_favorite,
     count_likes: count_likes,
     author: await getUserName(Number(joke.jokesterId)),
-    date_created: ('0'+day).slice(-2)+' of '+monthNames[month-1]+ ' '+year.toString().slice(-2),
+    date_created: convertDate(joke.createdAt),
     count_unlikes: count_unlikes });
 };
 
