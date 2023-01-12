@@ -55,7 +55,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
     is_favorite:  is_favorite,
     count_likes: count_likes,
     author: await getUserName(Number(joke.jokesterId)),
-    date_created: convertDate(joke.createdAt),
+    date_created: convertDate(joke.createdAt.toDateString()),
     count_unlikes: count_unlikes });
 };
 

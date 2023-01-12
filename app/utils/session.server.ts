@@ -275,7 +275,7 @@ const storage = createCookieSessionStorage({
       'id': jokeListItems[i].id,
       'name': jokeListItems[i].name,
       'author': await getUserName(Number(jokeListItems[i].jokesterId)),
-      'date_time': convertDate(jokeListItems[i].createdAt),
+      'date_time': convertDate(jokeListItems[i].createdAt.toDateString()),
       "likes": count_likes,
       "un_likes": count_unlikes,
     })
@@ -287,7 +287,7 @@ const storage = createCookieSessionStorage({
     var is_prev = Number(start) > 0;
 
 
-    return json({
+    return {
       list_jokes,
         user,
         "total_joke": jokes_count,
@@ -297,5 +297,53 @@ const storage = createCookieSessionStorage({
         "is_previous": is_prev,
         "next": "/jokes?start="+(Number(start)+5).toString(),
         "prev": "/jokes?start="+(Number(start)-5).toString(),
+    };
+  }
+
+
+  export async function get_top_jokes(request: Request){
+    const jokelikeItems = await db.jokelikes.groupBy({
+      take: 5,
+      orderBy: {
+        _count: {
+          is_like: 'desc'
+        }
+      },
+      by: ['jokeId']
     });
+
+  const user = await getUser(request);
+  
+  var list_top_jokes = []
+
+  for (let i = 0; i < jokelikeItems.length; i++) {
+    const count_likes = await db.jokelikes.count({
+      where: { jokeId : Number(jokelikeItems[i].jokeId), is_like:  true},
+    });
+  
+    const count_unlikes = await db.jokelikes.count({
+      where: { jokeId : Number(jokelikeItems[i].jokeId), is_un_like:  true},
+    });
+
+    const joke = await db.joke.findUnique({
+      where: { id: Number(jokelikeItems[i].jokeId) },
+    });
+
+   let date_str = joke?.createdAt;
+
+    list_top_jokes.push({
+      'id': joke?.id,
+      'name': joke?.name,
+      'author': await getUserName(Number(joke?.jokesterId)),
+      "likes": count_likes,
+      "un_likes": count_unlikes,
+    })
+  }
+
+
+
+    return {
+      list_top_jokes,
+        user,
+    };
   }

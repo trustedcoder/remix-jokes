@@ -2,7 +2,7 @@ import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import { db } from "~/utils/db.server";
 import { getUser } from "~/utils/session.server";
-import { getUserId, likeJoke, unlikeJoke, favorite, deleteJoke, get_jokes } from "~/utils/session.server";
+import { getUserId, likeJoke, unlikeJoke, favorite, deleteJoke, get_jokes,get_top_jokes } from "~/utils/session.server";
 import { convertDate } from "~/utils/helpers";
 
 import type {
@@ -23,7 +23,11 @@ export const loader = async ({request }: LoaderArgs) => {
   if(isNaN(start_num)){
     var start_num = 0;
   }
-  return await get_jokes(start_num, request);
+  var dta = {
+    topJokeList: await get_top_jokes(request),
+    jokeList: await get_jokes(start_num, request),
+  }
+  return await json(dta);
 };
 
     export const action = async ({ params, request }: ActionArgs) => {
@@ -74,10 +78,10 @@ export const loader = async ({request }: LoaderArgs) => {
                 <div className="flex items-center space-x-1">
                   
 
-                  {data.user ? (
+                  {data.jokeList.user ? (
                     <ul className="hidden space-x-2 md:inline-flex">
                       <li className="self-center">
-                        <span className="place-items-center px-4 py-2 font-semibold text-gray-300 rounded">{`Hi ${data.user.username}`}</span>
+                        <span className="place-items-center px-4 py-2 font-semibold text-gray-300 rounded">{`Hi ${data.jokeList.user.username}`}</span>
                       </li>
                       <li className="self-center">
                         <span className="place-items-center px-4 py-2 font-semibold text-gray-300 rounded">Favorites</span>
@@ -114,7 +118,7 @@ export const loader = async ({request }: LoaderArgs) => {
                 <div className="grid grid-cols-4 gap-4">
                   <div className="">
                   <h5 className="text-lg text-violet-100 font-bold mb-5">New jokes</h5>
-                  {data.list_jokes.map((joke) => (
+                  {data.jokeList.list_jokes.map((joke) => (
                     <div className="border-x border-y mb-2 px-2 rounded bg-black">
                       <p className="text-lg text-green-500"><Link to={joke.id.toString()}>{joke.name}</Link></p>
                       <p className="text-sm text-white">By {joke.author} on {joke.date_time}</p>
@@ -133,15 +137,15 @@ export const loader = async ({request }: LoaderArgs) => {
                     </div>
                     ))}
                     <div className="flex flex-row mt-4 px-3 py-3 bg-black">
-                      <span className="text-xs text-cyan-50">Showing {data.start} to {data.current} of {data.total_joke} results</span>
+                      <span className="text-xs text-cyan-50">Showing {data.jokeList.start} to {data.jokeList.current} of {data.jokeList.total_joke} results</span>
                       <div className="flex flex-row mb-3">
-                      { data.is_previous ? (
-                        <Link to={data.prev} className="bg-green-600 text-white px-3 py-2 rounded-md text-xs font-medium">Previous</Link>
+                      { data.jokeList.is_previous ? (
+                        <Link to={data.jokeList.prev} className="bg-green-600 text-white px-3 py-2 rounded-md text-xs font-medium">Previous</Link>
                         ): ( <span className="bg-gray-900 text-white px-3 py-2 rounded-md text-xs font-medium">Previous</span> )
                       }
-                      { data.is_next ? (
+                      { data.jokeList.is_next ? (
                         <span className="bg-gray-900 text-white px-3 py-2 rounded-md text-xs font-medium ml-2">Next</span>
-                        ): ( <Link to={data.next} className="bg-green-600 text-white px-3 py-2 rounded-md text-xs font-medium ml-2">Next</Link>)
+                        ): ( <Link to={data.jokeList.next} className="bg-green-600 text-white px-3 py-2 rounded-md text-xs font-medium ml-2">Next</Link>)
                       }
                       </div>
                     </div>
@@ -153,10 +157,10 @@ export const loader = async ({request }: LoaderArgs) => {
                   </div>
                   <div className="">
                   <h3 className="text-lg text-violet-100 font-bold mb-5"> Top rated jokes:</h3>
-                  {data.list_jokes.map((joke) => (
+                  {data.topJokeList.list_top_jokes.map((joke) => (
                     <div className="border-x border-y mb-2 px-2 rounded bg-black">
-                      <p className="text-lg text-green-500"><Link to={joke.id.toString()}>{joke.name}</Link></p>
-                      <p className="text-sm text-white">By {joke.author} on {joke.date_time}</p>
+                      <p className="text-lg text-green-500"><Link to={joke.id!.toString()}>{joke.name}</Link></p>
+                      <p className="text-sm text-white">By {joke.author}</p>
                       <div className="flex flex-row mt-4 mb-2">
                         <div className="mr-1 text-white"><span>{joke.likes}</span></div>
                         <div className="mr-4">
